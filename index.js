@@ -4,7 +4,7 @@
 		<style>
 		</style>
 		<div id="root" style="width: 100%; height: 100%;">
-		커스텀위젯테스트2
+		커스텀위젯테스트
 		</div>
 	`
 
@@ -31,12 +31,11 @@
 		}
 
 		render() {
-			this._root.textContent = `너비: ${this.clientWidth},   높이: ${this.clientHeight}`
-			// const dataBinding = this.dataBinding
-			// if (!dataBinding || dataBinding.state !== 'success') {
-			// 	return
-			// }
-			// this._root.textContent = JSON.stringify(dataBinding)
+			const dataBinding = this.dataBinding
+			if (!dataBinding || dataBinding.state !== 'success') {
+				return
+			}
+			this._root.textContent = JSON.stringify(dataBinding)
 		}
 	}
 

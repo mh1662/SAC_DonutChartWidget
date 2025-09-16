@@ -1,3 +1,26 @@
+
+var getScriptPromisify = (src) => {
+	return new Promise((resolve) => {
+		$.getScript(src, resolve)
+	})
+}
+
+var parseMetadata = metadata => {
+	const {dimensions: dimensionsMap, mainStructureMembers: measuresMap } = metadata
+	const dimensions = []
+	for (const key in dimensionsMap) {
+		const dimension = dimensionsMap[key]
+		dimensions.push({key, ...dimension})
+	}
+	const measures = []
+	for (const key in measuresMap){
+		const measure = measuresMap[key]
+		measures.push({key, ...measure})
+	}
+	return {dimensions, measures, dimensionsMap, measuresMap}
+}
+
+
 (function () {
 	const template = document.createElement('template')
 	template.innerHTML = `
@@ -7,27 +30,6 @@
 		커스텀위젯테스트5
 		</div>
 	`
-
-	var getScriptPromisify = (src) => {
-		return new Promise((resolve) => {
-			$.getScript(src, resolve)
-		})
-	}
-
-	var parseMetadata = metadata => {
-		const {dimensions: dimensionsMap, mainStructureMembers: measuresMap } = metadata
-		const dimensions = []
-		for (const key in dimensionsMap) {
-			const dimension = dimensionsMap[key]
-			dimensions.push({key, ...dimension})
-		}
-		const measures = []
-		for (const key in measuresMap){
-			const measure = measuresMap[key]
-			measures.push({key, ...measure})
-		}
-		return {dimensions, measures, dimensionsMap, measuresMap}
-	}
 
 	class Main extends HTMLElement{
 		constructor () {
@@ -50,7 +52,13 @@
 		}
 
 		onCustomWidgetDestroy() {
+			if (this._eChart && echarts) {echarts.dispose(this._eChart)}
+		}
 
+		setSeriesType(seriesType) {
+			this.seriesType = seriesType
+      		this.dispatchEvent(new CustomEvent('propertiesChanged', { detail: { properties: { seriesType } } }))
+			this.render()
 		}
 
 		async render () {
@@ -72,7 +80,7 @@
 					name: measure.label,
 					data: [],
 					key: measure.key,
-					type: 'line',
+					type: this.seriesType || 'line',
 					smooth: true
 				}
 			})

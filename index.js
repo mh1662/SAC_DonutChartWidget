@@ -16,7 +16,7 @@ var parseMetadata = metadata => {
 		const measure = measuresMap[key]
 		measures.push({key, ...measure})
 	}
-	return {dimensions, measures, dimensionsMap, measureMap}
+	return {dimensions, measures, dimensionsMap, measuresMap}
 }
 
 class Main extends HTMLElement {
@@ -64,11 +64,11 @@ class Main extends HTMLElement {
 			})					// measures
 		})
 
-		if (this._eChart) {eChart.dispose(this._eChart)}
+		if (this._eChart) {echarts.dispose(this._eChart)}
 		const eChart = this._eChart = echarts.init(this._root, 'main')
 		const option = {
 			xAxis: {type: 'category', data: categoryData},
-			yAxiz: {type: 'value'},
+			yAxis: {type: 'value'},
 			tooltip: {trigger: 'axis'},
 			series
 		}

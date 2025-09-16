@@ -1,42 +1,77 @@
-(function() { 
-	let template = document.createElement("template");
-	template.innerHTML = `
-		<style>
-		:host {
-			border-radius: 25px;
-			border-width: 4px;
-			border-color: black;
-			border-style: solid;
-			display: block;
-		} 
-		</style> 
-	`;
+var getScriptPromisify = (src) => {
+	return new Promise((resolve) => {
+		$.getScript(src, resolve)
+	})
+}
 
-	class ColoredBox extends HTMLElement {
-		constructor() {
-			super(); 
-			let shadowRoot = this.attachShadow({mode: "open"});
-			shadowRoot.appendChild(template.content.cloneNode(true));
-			this.addEventListener("click", event => {
-				var event = new Event("onClick");
-				this.dispatchEvent(event);
-			});
-			this._props = {};
-		}
+var parseMetadata = metadata => {
+	const {dimensions: dimensionsMap, mainStructureMembers: measuresMap } = metadata
+	const dimensions = []
+	for (const key in dimensionsMap) {
+		const dimension = dimensionsMap[key]
+		dimensions.push({key, ...dimension})
+	}
+	const measures = []
+	for (const key in measuresMap){
+		const measure = measuresMap[key]
+		measures.push({key, ...measure})
+	}
+	return {dimensions, measures, dimensionsMap, measureMap}
+}
 
-		onCustomWidgetBeforeUpdate(changedProperties) {
-			this._props = { ...this._props, ...changedProperties };
-		}
+class Main extends HTMLElement {
+	constructor () {
+		super()
 
-		onCustomWidgetAfterUpdate(changedProperties) {
-			if ("color" in changedProperties) {
-				this.style["background-color"] = changedProperties["color"];
-			}
-			if ("opacity" in changedProperties) {
-				this.style["opacity"] = changedProperties["opacity"];
-			}
-		}
+		this._shadowRoot = this.attachShadow({mode:'open'})
+		this._shadowRoot.appendChild(template.content.cloneNode(true))
+
+		this._root = this._shadowRoot.getElementById('root')
+
+		this._eChart = null
 	}
 
-	customElements.define("com-sap-sample-coloredbox", ColoredBox);
-})();
+	async render () {
+		const dataBinding = this.dataBinding
+		if (!dataBinding || dataBinding.state !== 'success') {return}
+
+		await getScriptPromisify('https://cdn.staticfile.org/echarts/5.0.0/echarts.min.js')
+
+		const {data, metadata} = dataBinding
+		const {dimensions,measures} = parseMetadata(metadata)
+
+		//dimension
+		const categoryData = []
+
+		//measures
+		const series = measures.map(measure => {
+			return {
+				id: measure.id,
+				name: measure.label,
+				data: [],
+				key: measure.key,
+				type: 'line',
+				smooth: true
+			}
+		})
+
+		data.forEach(row => {
+			categoryData.push(dimensions.map(dimension => {
+				return row[dimension.key].label
+			}).join('/'))		//dimension
+			series.forEach(series => {
+				series.data.push(row[series.key].raw)
+			})					// measures
+		})
+
+		if (this._eChart) {eChart.dispose(this._eChart)}
+		const eChart = this._eChart = echarts.init(this._root, 'main')
+		const option = {
+			xAxis: {type: 'category', data: categoryData},
+			yAxiz: {type: 'value'},
+			tooltip: {trigger: 'axis'},
+			series
+		}
+		eChart.setOption(option)
+	}
+}

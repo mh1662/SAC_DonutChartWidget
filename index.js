@@ -30,8 +30,8 @@
 
 		}
 
-		async render() {
-			this._root.textContent = `너비: ${this.clientWidth}  높이: ${this.clientHeight}`
+		render() {
+			this._root.textContent = `너비: ${this.clientWidth},   높이: ${this.clientHeight}`
 			// const dataBinding = this.dataBinding
 			// if (!dataBinding || dataBinding.state !== 'success') {
 			// 	return

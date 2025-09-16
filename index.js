@@ -4,7 +4,7 @@
 		<style>
 		</style>
 		<div id="root" style="width: 100%; height: 100%;">
-		커스텀위젯테스트4
+		커스텀위젯테스트5
 		</div>
 	`
 

@@ -4,7 +4,7 @@
 		<style>
 		</style>
 		<div id="root" style="width: 100%; height: 100%;">
-		커스텀위젯테스트
+		커스텀위젯테스트2
 		</div>
 	`
 
@@ -23,7 +23,7 @@
 		}
 
 		onCustomWidgetAfterUpdate(changedProps){
-			// this.render()
+			this.render()
 		}
 
 		onCustomWidgetDestroy() {
